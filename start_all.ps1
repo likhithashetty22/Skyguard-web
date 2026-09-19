@@ -21,13 +21,13 @@ Start-Sleep -Seconds 2
 Write-Host "[3/3] Opening Web Portals..." -ForegroundColor Green
 Start-Process "http://localhost:5500/sender/stations.html"
 Start-Process "http://localhost:5500/receiver/dashboard.html"
-Start-Process "http://localhost:8000/"
+Start-Process "https://skyguard-web.onrender.com/"
 
 Write-Host ""
 Write-Host "=========================================================================" -ForegroundColor Cyan
 Write-Host "  All 3 nodes are active and running:" -ForegroundColor Yellow
 Write-Host "    • Sender Node:   http://localhost:5500/sender/stations.html" -ForegroundColor White
 Write-Host "    • Receiver Node: http://localhost:5500/receiver/dashboard.html" -ForegroundColor White
-Write-Host "    • Cloud Central: http://localhost:8000/" -ForegroundColor White
-Write-Host "    • OpenAPI Docs:  http://localhost:8000/docs" -ForegroundColor White
+Write-Host "    • Cloud Central: https://skyguard-web.onrender.com/" -ForegroundColor White
+Write-Host "    • OpenAPI Docs:  https://skyguard-web.onrender.com/docs" -ForegroundColor White
 Write-Host "=========================================================================" -ForegroundColor Cyan

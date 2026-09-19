@@ -23,18 +23,45 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Detect static folder location
-STATIC_DIR = "cloud/static" if os.path.exists("cloud/static") else "static"
+# Detect static folder location using absolute paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+if os.path.exists(os.path.join(BASE_DIR, "cloud", "static")):
+    STATIC_DIR = os.path.join(BASE_DIR, "cloud", "static")
+elif os.path.exists(os.path.join(BASE_DIR, "static")):
+    STATIC_DIR = os.path.join(BASE_DIR, "static")
+else:
+    STATIC_DIR = os.path.join(BASE_DIR, "cloud", "static")
+
+CSS_DIR = os.path.join(STATIC_DIR, "css")
+JS_DIR = os.path.join(STATIC_DIR, "js")
+SHARED_DIR = os.path.join(BASE_DIR, "shared")
 
 # Mount Static Assets Routes
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+if os.path.exists(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+if os.path.exists(CSS_DIR):
+    app.mount("/css", StaticFiles(directory=CSS_DIR), name="css")
+if os.path.exists(JS_DIR):
+    app.mount("/js", StaticFiles(directory=JS_DIR), name="js")
+if os.path.exists(SHARED_DIR):
+    app.mount("/shared", StaticFiles(directory=SHARED_DIR), name="shared")
 
-# Mount /css and /js routes if they exist at project root
-if os.path.exists("css"):
-    app.mount("/css", StaticFiles(directory="css"), name="css")
+@app.get("/css/{file_name}")
+@app.get("/static/css/{file_name}")
+async def serve_root_css(file_name: str):
+    file_path = os.path.join(CSS_DIR, file_name)
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/css")
+    return FileResponse(os.path.join(STATIC_DIR, "css", file_name), media_type="text/css")
 
-if os.path.exists("js"):
-    app.mount("/js", StaticFiles(directory="js"), name="js")
+@app.get("/js/{file_name}")
+@app.get("/static/js/{file_name}")
+async def serve_root_js(file_name: str):
+    file_path = os.path.join(JS_DIR, file_name)
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="application/javascript")
+    return FileResponse(os.path.join(STATIC_DIR, "js", file_name), media_type="application/javascript")
 
 
 # 2. Autoencoder Architecture

@@ -560,20 +560,38 @@ async def get_model_status():
 # -----------------------------------------------------------------------------------------
 # Static Files, Shared Datasets & Dashboard UI Mounting
 # -----------------------------------------------------------------------------------------
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
-SHARED_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "shared")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+CSS_DIR = os.path.join(STATIC_DIR, "css")
+JS_DIR = os.path.join(STATIC_DIR, "js")
+SHARED_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "shared"))
+if not os.path.exists(SHARED_DIR):
+    SHARED_DIR = os.path.join(BASE_DIR, "shared")
 
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-    css_dir = os.path.join(STATIC_DIR, "css")
-    js_dir = os.path.join(STATIC_DIR, "js")
-    if os.path.exists(css_dir):
-        app.mount("/css", StaticFiles(directory=css_dir), name="css")
-    if os.path.exists(js_dir):
-        app.mount("/js", StaticFiles(directory=js_dir), name="js")
-
+if os.path.exists(CSS_DIR):
+    app.mount("/css", StaticFiles(directory=CSS_DIR), name="css")
+if os.path.exists(JS_DIR):
+    app.mount("/js", StaticFiles(directory=JS_DIR), name="js")
 if os.path.exists(SHARED_DIR):
     app.mount("/shared", StaticFiles(directory=SHARED_DIR), name="shared")
+
+@app.get("/css/{file_name}")
+@app.get("/static/css/{file_name}")
+async def serve_css_file(file_name: str):
+    file_path = os.path.join(CSS_DIR, file_name)
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/css")
+    raise HTTPException(status_code=404, detail=f"CSS file {file_name} not found")
+
+@app.get("/js/{file_name}")
+@app.get("/static/js/{file_name}")
+async def serve_js_file(file_name: str):
+    file_path = os.path.join(JS_DIR, file_name)
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail=f"JS file {file_name} not found")
 
 @app.get("/api/stations", summary="Returns 5 synthetic Karnataka AWS stations")
 async def get_synthetic_stations():

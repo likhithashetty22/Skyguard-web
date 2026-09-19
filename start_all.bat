@@ -18,11 +18,11 @@ timeout /t 2 /nobreak > nul
 echo [3/3] Opening Browser Nodes:
 echo   - Sender Node:   http://localhost:5500/sender/stations.html
 echo   - Receiver Node: http://localhost:5500/receiver/dashboard.html
-echo   - Cloud Portal:  http://localhost:8000/
+echo   - Cloud Portal:  https://skyguard-web.onrender.com/
 echo.
 start http://localhost:5500/sender/stations.html
 start http://localhost:5500/receiver/dashboard.html
-start http://localhost:8000/
+start https://skyguard-web.onrender.com/
 
 echo =========================================================================
 echo All 3 nodes launched! Press any key to close this launcher script.

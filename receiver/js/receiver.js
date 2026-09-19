@@ -12,7 +12,7 @@ const TELEMETRY_STORAGE_KEY = 'skyguard_telemetry_history_v1';
 const PINGS_STORAGE_KEY = 'skyguard_pings_history_v1';
 
 const MAX_STORED_ITEMS = 100;
-const CLOUD_INGEST_URL = 'http://localhost:8000/cloud/ingest';
+const CLOUD_INGEST_URL = 'https://skyguard-web.onrender.com/cloud/ingest';
 
 // Cloud Upstream Relay (Edge ESP32 / Receiver -> IMD Cloud Central)
 export async function forwardToCloud(reading, evalResult) {
