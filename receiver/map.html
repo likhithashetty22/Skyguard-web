@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyGuard AI — Receiver Console (India Map View)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/receiver.css">
+  <style>
+    .map-container-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-lg);
+    }
+    #india-map {
+      height: 580px;
+      width: 100%;
+      background-color: #0b1120;
+    }
+    .map-legend {
+      display: flex;
+      gap: var(--space-4);
+      align-items: center;
+      flex-wrap: wrap;
+      background: var(--bg-surface-elevated);
+      padding: var(--space-3) var(--space-5);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      margin-top: var(--space-4);
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.825rem;
+      color: var(--text-main);
+    }
+    .legend-pin {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .legend-pin.normal { background-color: #10b981; box-shadow: 0 0 6px #10b981; }
+    .legend-pin.warning { background-color: #f59e0b; box-shadow: 0 0 6px #f59e0b; }
+    .legend-pin.critical { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+    .legend-pin.unknown { background-color: #6b7280; }
+  </style>
+</head>
+<body>
+
+  <!-- App Header & Navigation Tabs -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-section">
+        <div class="brand-logo">SG</div>
+        <div class="brand-meta">
+          <h1>SkyGuard AI <span style="font-size: 0.8rem; font-weight: 500; opacity: 0.8;">| Receiver Console</span></h1>
+          <p>India Meteorological Department (IMD) • SIH26073</p>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <a href="index.html" class="nav-tab">
+          <span>📡</span> Connection Status
+        </a>
+        <a href="dashboard.html" class="nav-tab">
+          <span>🛡️</span> Anomaly Dashboard
+        </a>
+        <a href="map.html" class="nav-tab active">
+          <span>🗺️</span> India Map View
+        </a>
+      </nav>
+
+      <div class="connection-badge">
+        <span class="status-dot connected"></span>
+        <span>Edge Network Live</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View -->
+  <main class="app-main">
+    <!-- Station Registry Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">Registered Stations</span>
+        <span id="map-count-total" class="metric-value">5</span>
+      </div>
+      <div class="metric-card normal">
+        <span class="metric-label">Normal Stations</span>
+        <span id="map-count-normal" class="metric-value">0</span>
+      </div>
+      <div class="metric-card warning">
+        <span class="metric-label">Warning Status</span>
+        <span id="map-count-warning" class="metric-value">0</span>
+      </div>
+      <div class="metric-card critical">
+        <span class="metric-label">Critical Status</span>
+        <span id="map-count-critical" class="metric-value">0</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Awaiting Telemetry</span>
+        <span id="map-count-unknown" class="metric-value">5</span>
+      </div>
+    </div>
+
+    <!-- Map Card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title"><span>🇮🇳</span> Automatic Weather Station Network — India</h2>
+          <p class="card-description">
+            Geographical distribution of AWS nodes. Markers dynamically reflect Virtual ESP32 TinyML judgments received across the transport channel.
+          </p>
+        </div>
+
+        <div style="font-size: 0.8rem; color: var(--text-muted); background: var(--bg-surface-elevated); padding: 4px 10px; border-radius: var(--radius-sm);">
+          Live Sync • Zero Backend
+        </div>
+      </div>
+
+      <!-- Map Container -->
+      <div class="map-container-wrapper">
+        <div id="india-map"></div>
+      </div>
+
+      <!-- Legend -->
+      <div class="map-legend">
+        <strong style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Status Legend:</strong>
+        <div class="legend-item">
+          <span class="legend-pin normal"></span> Normal (Nominal)
+        </div>
+        <div class="legend-item">
+          <span class="legend-pin warning"></span> Warning (Borderline / Rapid Shift)
+        </div>
+        <div class="legend-item">
+          <span class="legend-pin critical"></span> Critical Anomaly
+        </div>
+        <div class="legend-item">
+          <span class="legend-pin unknown"></span> Unknown / Standby
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module">
+    import { initIndiaMapView } from './js/map.js';
+    function boot() {
+      initIndiaMapView();
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
+    }
+  </script>
+</body>
+</html>

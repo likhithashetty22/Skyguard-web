@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyGuard AI — Sender Console (Karnataka Map)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/sender.css">
+</head>
+<body>
+
+  <!-- App Header & Navigation Tabs -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-section">
+        <div class="brand-logo">SG</div>
+        <div class="brand-meta">
+          <h1>SkyGuard AI <span style="font-size: 0.8rem; font-weight: 500; opacity: 0.8;">| Sender</span></h1>
+          <p>AWS Weather Station Telemetry Simulator • SIH26073</p>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <a href="index.html" class="nav-tab">
+          <span>📡</span> Connection Handshake
+        </a>
+        <a href="stations.html" class="nav-tab active">
+          <span>🗺️</span> Karnataka Map
+        </a>
+        <a href="station-detail.html" class="nav-tab">
+          <span>📊</span> Station Detail & Upload
+        </a>
+      </nav>
+
+      <div class="connection-badge">
+        <span class="status-dot connected"></span>
+        <span>BroadcastChannel Active</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View -->
+  <main class="app-main">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title"><span>🗺️</span> Western Ghats AWS Network (Karnataka)</h2>
+          <p class="card-description">
+            Automatic Weather Stations in Agumbe, Kottigehara, Kammaradi, Kalasa, and Bhagamandala. Click a pin to inspect detailed station records.
+          </p>
+        </div>
+
+        <div class="map-floating-controls" style="margin-top: 0;">
+          <button id="btn-send-data" class="btn btn-primary">
+            <span>📡</span> Send Data (All 5 Stations)
+          </button>
+          <button id="btn-simulate-anomaly" class="btn btn-danger">
+            <span>⚠️</span> Simulate Anomaly
+          </button>
+        </div>
+      </div>
+
+      <!-- Map Container -->
+      <div class="map-container-wrapper">
+        <div id="stations-map"></div>
+      </div>
+
+      <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+        <div>
+          <span class="badge-tag" style="background: rgba(2, 132, 199, 0.2); color: #38bdf8;">5 Active Stations</span>
+          <span style="margin-left: 0.5rem;">Coordinates pulled from <code>shared/stations.json</code></span>
+        </div>
+        <div>
+          Tip: Keep <code>receiver/dashboard.html</code> open side by side to watch anomalies flag in real-time!
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module">
+    import { initMapView } from './js/sender.js';
+    function boot() {
+      initMapView();
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
+    }
+  </script>
+</body>
+</html>

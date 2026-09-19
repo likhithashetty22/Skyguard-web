@@ -1,0 +1,53 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. Start Cloud Backend & IMD Portal (Port 8000)",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "uvicorn",
+        "cloud.cloud_main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000",
+        "--reload"
+      ],
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "skyguard"
+      }
+    },
+    {
+      "label": "2. Start Web Server for Sender & Receiver (Port 5500)",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "http.server",
+        "5500"
+      ],
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "skyguard"
+      }
+    },
+    {
+      "label": "⚡ Launch All 3 Nodes (Sender, Receiver & Cloud)",
+      "dependsOn": [
+        "1. Start Cloud Backend & IMD Portal (Port 8000)",
+        "2. Start Web Server for Sender & Receiver (Port 5500)"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

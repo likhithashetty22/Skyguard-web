@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyGuard AI — Receiver Console (Anomaly Detection Dashboard)</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/receiver.css">
+</head>
+<body>
+
+  <!-- App Header & Navigation Tabs -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-section">
+        <div class="brand-logo">SG</div>
+        <div class="brand-meta">
+          <h1>SkyGuard AI <span style="font-size: 0.8rem; font-weight: 500; opacity: 0.8;">| Receiver Console</span></h1>
+          <p>India Meteorological Department (IMD) • SIH26073</p>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <a href="index.html" class="nav-tab">
+          <span>📡</span> Connection Status
+        </a>
+        <a href="dashboard.html" class="nav-tab active">
+          <span>🛡️</span> Anomaly Dashboard
+        </a>
+        <a href="map.html" class="nav-tab">
+          <span>🗺️</span> India Map View
+        </a>
+        <a href="http://localhost:8000" target="_blank" class="nav-tab" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">
+          <span>☁️</span> Cloud Portal (IMD) ↗
+        </a>
+      </nav>
+
+      <div class="connection-badge" style="display: flex; align-items: center; gap: 0.6rem;">
+        <span class="status-dot connected"></span>
+        <span>Edge Active</span>
+        <span id="cloud-sync-badge" class="badge badge-cloud-offline" style="font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8;">☁️ Cloud: Checking...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View -->
+  <main class="app-main">
+    <!-- Metrics Summary Chips -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-label">Total Readings Ingested</span>
+        <span id="count-total" class="metric-value">0</span>
+      </div>
+      <div class="metric-card normal">
+        <span class="metric-label">Normal / Nominal</span>
+        <span id="count-normal" class="metric-value">0</span>
+      </div>
+      <div class="metric-card warning">
+        <span class="metric-label">Warnings</span>
+        <span id="count-warning" class="metric-value">0</span>
+      </div>
+      <div class="metric-card critical">
+        <span class="metric-label">Critical Anomalies</span>
+        <span id="count-critical" class="metric-value">0</span>
+      </div>
+    </div>
+
+    <!-- Anomaly Table Card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title"><span>🚨</span> Real-Time Weather Station Anomaly Stream</h2>
+          <p class="card-description">Telemetry evaluated client-side via pure threshold & spike rules. Click any flagged row to open diagnostic details.</p>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <!-- Filter Controls -->
+          <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="flagged">Flagged Only</button>
+            <button class="filter-btn" data-filter="critical">Critical Only</button>
+          </div>
+
+          <button id="btn-clear-resolved" class="btn btn-outline btn-sm" title="Clear resolved records stored in localStorage">
+            Reset Resolved
+          </button>
+          <button id="btn-clear-readings" class="btn btn-outline btn-sm" title="Clear table and stored telemetry history">
+            Clear Stream
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="anomaly-table">
+          <thead>
+            <tr>
+              <th>Station</th>
+              <th>Time</th>
+              <th>Temp (°C)</th>
+              <th>Humidity (%)</th>
+              <th>Pressure (hPa)</th>
+              <th>Anomaly State</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="anomaly-table-body">
+            <tr id="empty-table-placeholder">
+              <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                Waiting for weather station transmissions...<br>
+                <span style="font-size: 0.8rem;">(Click "Send Data" or "Simulate Anomaly" in the Sender tab to stream readings)</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Side Panel Backdrop -->
+  <div id="side-panel-backdrop" class="side-panel-backdrop"></div>
+
+  <!-- "More Details" Slide-Over Side Panel -->
+  <aside id="detail-side-panel" class="side-panel" aria-label="Anomaly Detail Drawer">
+    <div class="side-panel-header">
+      <div>
+        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Station Diagnostics</div>
+        <h3 id="panel-station-name" class="side-panel-title">Agumbe</h3>
+      </div>
+      <button id="btn-close-panel" class="btn-close" aria-label="Close details panel">✕</button>
+    </div>
+
+    <div class="side-panel-body">
+      <!-- Status & Probability Gauge -->
+      <div class="detail-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div class="detail-section-title" style="margin-bottom: 0;">Anomaly Confidence</div>
+          <span id="panel-severity-badge" class="badge badge-critical">CRITICAL (90/100)</span>
+        </div>
+
+        <div class="meter-wrapper">
+          <div class="meter-header">
+            <span style="color: var(--text-muted);">Detection Probability:</span>
+            <span id="panel-confidence-pct" style="color: var(--text-main); font-weight: 700;">85% Probability</span>
+          </div>
+          <div class="meter-track">
+            <div id="panel-meter-fill" class="meter-fill critical" style="width: 85%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Root Cause Analysis -->
+      <div class="detail-section">
+        <div class="detail-section-title">Root Cause Assessment</div>
+        <div id="panel-root-cause" class="root-cause-banner">
+          temp out_of_range, pressure spike
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+          Evaluated via client-side threshold limits and asymmetric diurnal drift algorithms.
+        </p>
+      </div>
+
+      <!-- Sensor Telemetry Snapshot -->
+      <div class="detail-section">
+        <div class="detail-section-title">Telemetry Snapshot at <span id="panel-timestamp" style="color: var(--text-main); text-transform: none;"></span></div>
+        <div class="telemetry-specs-grid">
+          <div class="spec-box">
+            <div class="label">Temperature</div>
+            <div id="panel-temp" class="value">--</div>
+          </div>
+          <div class="spec-box">
+            <div class="label">Relative Humidity</div>
+            <div id="panel-humidity" class="value">--</div>
+          </div>
+          <div class="spec-box" style="grid-column: span 2;">
+            <div class="label">Atmospheric Pressure</div>
+            <div id="panel-pressure" class="value">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edge Decision Path Breakdown (Explainability) -->
+      <div class="detail-section" id="panel-decision-section">
+        <div class="detail-section-title">Virtual ESP32 TinyML Decision Path</div>
+        <ul id="panel-decision-list" class="flags-list">
+          <li class="flag-item">Awaiting tree trace...</li>
+        </ul>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+          Traces comparisons through shallow decision tree distilled from offline Isolation Forest teacher model.
+        </p>
+      </div>
+
+      <!-- Flagged Violations Breakdown -->
+      <div class="detail-section">
+        <div class="detail-section-title">Rule Layer & Violation Flags</div>
+        <ul id="panel-flags-list" class="flags-list">
+          <li class="flag-item">Scanning...</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Side Panel Actions -->
+    <div class="side-panel-footer">
+      <button id="btn-next-station" class="btn btn-outline" title="Cycle to next flagged station">
+        Next Station ❯
+      </button>
+      <button id="btn-resolve-anomaly" class="btn btn-resolve" title="Mark as resolved and persist in localStorage">
+        ✓ Mark Resolved
+      </button>
+    </div>
+  </aside>
+
+  <script type="module">
+    import { initDashboardView } from './js/receiver.js';
+    function boot() {
+      initDashboardView();
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
+    }
+  </script>
+</body>
+</html>

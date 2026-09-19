@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyGuard AI — Receiver Console (Connection)</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/receiver.css">
+</head>
+<body>
+
+  <!-- App Header & Navigation Tabs -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-section">
+        <div class="brand-logo">SG</div>
+        <div class="brand-meta">
+          <h1>SkyGuard AI <span style="font-size: 0.8rem; font-weight: 500; opacity: 0.8;">| Receiver Console</span></h1>
+          <p>India Meteorological Department (IMD) • SIH26073</p>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <a href="index.html" class="nav-tab active">
+          <span>📡</span> Connection Status
+        </a>
+        <a href="dashboard.html" class="nav-tab" id="nav-tab-dashboard">
+          <span>🛡️</span> Anomaly Dashboard
+        </a>
+        <a href="map.html" class="nav-tab">
+          <span>🗺️</span> India Map View
+        </a>
+        <a href="http://localhost:8000" target="_blank" class="nav-tab" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">
+          <span>☁️</span> Cloud Portal (IMD) ↗
+        </a>
+      </nav>
+
+      <div class="connection-badge" style="display: flex; align-items: center; gap: 0.6rem;">
+        <span id="status-dot" class="status-dot"></span>
+        <span id="status-text">Connecting...</span>
+        <span id="cloud-sync-badge" class="badge badge-cloud-offline" style="font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8;">☁️ Cloud: Checking...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View -->
+  <main class="app-main">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title"><span>⚡</span> Level 1: Receiver Transport Listener</h2>
+          <p class="card-description">Listens on the client-side <code>BroadcastChannel('skyguard')</code> for test pings and live telemetry broadcasts.</p>
+        </div>
+      </div>
+
+      <div class="detail-section" style="margin-bottom: 1.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-md);">
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+          Open <code>sender/index.html</code> in an adjacent tab and click <strong>"Send Test Ping"</strong> to see live events logged below. Incoming anomalies are automatically stored and rendered in the Anomaly Dashboard.
+        </p>
+        <a href="dashboard.html" class="btn btn-primary" style="font-size: 0.85rem;">
+          Go to Anomaly Detection Dashboard (Tab 2) →
+        </a>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Incoming Message Stream (Persisted)</label>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Channel: 'skyguard'</span>
+            <button id="btn-clear-log" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 2px 8px;">Clear Log</button>
+          </div>
+        </div>
+        <div id="receiver-log" class="log-terminal"></div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initReceiverConnectionView } from './js/receiver.js';
+    function boot() {
+      initReceiverConnectionView();
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
+    }
+  </script>
+</body>
+</html>

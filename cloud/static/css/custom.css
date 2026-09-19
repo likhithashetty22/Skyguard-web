@@ -1,0 +1,42 @@
+/* ==========================================================================
+   SkyGuard AI — User Custom CSS Stylesheet (custom.css)
+   ==========================================================================
+   This file is intentionally left open and pre-linked in index.html for YOU.
+   You can freely change colors, fonts, card backgrounds, borders, padding,
+   or any other visual presentation elements here without touching the core files.
+   ========================================================================== */
+
+/* 
+   💡 TIP: To override any base theme variable, simply uncomment and edit:
+
+:root {
+  --bg-app: #0f172a;               -- Main background
+  --bg-header: #1e293b;            -- Top bar background
+  --bg-sidebar: #1e293b;           -- Sidebar background
+  --bg-surface: #1e293b;           -- Card and table background
+  --brand-cyan: #38bdf8;           -- Primary accent color
+  --text-primary: #f8fafc;         -- Main text color
+  --text-bright: #ffffff;          -- Highlight heading color
+  --anomaly-severe-bg: rgba(220, 38, 38, 0.85); -- Anomaly highlight
+}
+*/
+
+/* 
+   🎨 CUSTOM USER STYLES:
+   Add any custom rules, styling tweaks, or font changes below:
+*/
+
+/* Welcome text custom styling (example): */
+/*
+.welcome-title {
+  font-family: 'Inter', sans-serif;
+  color: #38bdf8;
+}
+*/
+
+/* Station temporal table custom styling (example): */
+/*
+.telemetry-data-table th {
+  background-color: #0f172a;
+}
+*/
