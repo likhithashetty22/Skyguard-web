@@ -4,13 +4,40 @@ import torch
 import torch.nn as nn
 import joblib
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from datetime import datetime
 import os
 
-# 1. Autoencoder Architecture
+# 1. Initialize FastAPI App first
+app = FastAPI(title="SkyGuard Cloud Backend")
+
+# Enable CORS middleware for frontend communication
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Detect static folder location
+STATIC_DIR = "cloud/static" if os.path.exists("cloud/static") else "static"
+
+# Mount Static Assets Routes
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# Mount /css and /js routes if they exist at project root
+if os.path.exists("css"):
+    app.mount("/css", StaticFiles(directory="css"), name="css")
+
+if os.path.exists("js"):
+    app.mount("/js", StaticFiles(directory="js"), name="js")
+
+
+# 2. Autoencoder Architecture
 class WeatherAutoencoder(nn.Module):
     def __init__(self):
         super().__init__()
@@ -25,15 +52,16 @@ class WeatherAutoencoder(nn.Module):
     def forward(self, x):
         return self.decoder(self.encoder(x))
 
-# 2. Load Model Weights and Scaler
+# 3. Load Model Weights and Scaler
 model = WeatherAutoencoder()
-model.load_state_dict(torch.load("weather_autoencoder.pth"))
+if os.path.exists("weather_autoencoder.pth"):
+    model.load_state_dict(torch.load("weather_autoencoder.pth"))
 model.eval()
 
-scaler = joblib.load("scaler.pkl")
+scaler = joblib.load("scaler.pkl") if os.path.exists("scaler.pkl") else None
 ANOMALY_THRESHOLD = 0.5
 
-# 3. Database Initialization
+# 4. Database Initialization
 DB_NAME = "cloud_data.sqlite"
 
 def init_db():
@@ -56,14 +84,6 @@ def init_db():
 
 init_db()
 
-# 4. FastAPI Setup
-app = FastAPI(title="SkyGuard Cloud Backend")
-
-# Mount static folder for frontend UI (CSS, JS, assets)
-# Checks both "cloud/static" and "static" path configurations
-STATIC_DIR = "cloud/static" if os.path.exists("cloud/static") else "static"
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
 class TelemetryPayload(BaseModel):
     location: str = "Sensor-Node-1"
     temperature: float
@@ -74,13 +94,15 @@ class TelemetryPayload(BaseModel):
 @app.get("/")
 def read_root():
     index_path = os.path.join(STATIC_DIR, "index.html")
-    return FileResponse(index_path)
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"message": "SkyGuard Cloud API Active"}
 
 # Telemetry POST Ingestion Endpoint
 @app.post("/api/telemetry")
 def process_telemetry(payload: TelemetryPayload):
     raw_data = np.array([[payload.temperature, payload.humidity, payload.pressure]])
-    scaled_data = scaler.transform(raw_data)
+    scaled_data = scaler.transform(raw_data) if scaler else raw_data
     tensor_input = torch.tensor(scaled_data, dtype=torch.float32)
 
     with torch.no_grad():
