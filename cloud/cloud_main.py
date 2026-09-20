@@ -614,6 +614,15 @@ STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+    # Mount /css and /js sub-routes so relative links in index.html load on root /
+    CSS_DIR = os.path.join(STATIC_DIR, "css")
+    if os.path.exists(CSS_DIR):
+        app.mount("/css", StaticFiles(directory=CSS_DIR), name="css")
+
+    JS_DIR = os.path.join(STATIC_DIR, "js")
+    if os.path.exists(JS_DIR):
+        app.mount("/js", StaticFiles(directory=JS_DIR), name="js")
+
 # Mount Sender & Receiver static nodes for unified Render deployment
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 
