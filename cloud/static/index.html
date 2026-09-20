@@ -3,196 +3,508 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SkyGuard AI — Cloud Dashboard & Maps</title>
+  <title>SkyGuard AI — Central Telemetry & Anomaly Command Portal</title>
   
-  <!-- Google Fonts: Inter & JetBrains Mono for telemetry -->
+  <!-- Technical SEO & Meta Tags -->
+  <meta name="description" content="SkyGuard AI Real-Time Anomaly Detection & Cloud Telemetry Command Center for Automatic Weather Stations (AWS)." />
+  <meta property="og:title" content="SkyGuard AI — Cloud Telemetry Dashboard" />
+  <meta property="og:description" content="Enterprise hardware health visualization, edge-to-cloud telemetry ingestion, and continuous autoencoder retraining." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Leaflet CSS for Karnataka Map -->
+  <!-- Leaflet CSS for Regional Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  
+  <!-- Chart.js for Telemetry & Retraining Loss Curves -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Base Application CSS -->
+  <!-- SheetJS for Client-Side Excel (.xlsx / .csv) Generation -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Custom Cloud Dashboard Stylesheet -->
   <link rel="stylesheet" href="css/cloud.css" />
-
-  <!-- USER CUSTOM CSS FILE -->
   <link rel="stylesheet" href="css/custom.css" />
 </head>
-<body>
+<body class="dashboard-layout">
 
-  <!-- ========================================================================
-       TOP APP HEADER (Matches 1.png & 2.png)
-       ======================================================================== -->
-  <header class="app-header">
-    <div class="header-left">
-      <!-- Sidebar Toggle Button [□] from 1.png -->
-      <button id="btn-sidebar-toggle" class="btn-sidebar-toggle" title="Toggle Navigation Sidebar" aria-label="Toggle Sidebar">
-        <div class="toggle-icon-box"></div>
-      </button>
-
-      <!-- Sketch Card / Placeholder Logo (from 1.png: "Skygaund" / "SkyGuard") -->
-      <div id="logo-home" class="sketch-card-logo" title="SkyGuard AI Home">
-        <span class="logo-text">SkyGuard AI</span>
-        <span class="logo-tag">Cloud</span>
+  <!-- Left Sidebar Navigation Panel -->
+  <aside class="sidebar-container" aria-label="Main Navigation">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="brand-badge">SG</div>
+        <div class="brand-info">
+          <div class="brand-name">SkyGuard AI</div>
+          <div class="brand-tag">Cloud Command Center</div>
+        </div>
       </div>
     </div>
 
-    <div class="header-right">
-      <div class="system-status-indicator">
-        <span class="status-pulse"></span>
-        <span>Karnataka AWS Grid Active</span>
-      </div>
-    </div>
-  </header>
+    <!-- Navigation Options -->
+    <nav class="sidebar-menu">
+      <div class="menu-label">Main Dashboard</div>
+      <a href="#regional-overview" class="sidebar-item active">
+        <span class="nav-text">Regional Map Grid</span>
+      </a>
+      <a href="#hardware-health" class="sidebar-item">
+        <span class="nav-text">Hardware Telemetry Gauges</span>
+      </a>
+      <a href="#analytics-charts" class="sidebar-item">
+        <span class="nav-text">Analytics & Signal Charts</span>
+      </a>
+      <a href="#central-repository" class="sidebar-item">
+        <span class="nav-text">Excel Sheets & Data Exports</span>
+      </a>
+      <a href="#terminal-stream" class="sidebar-item">
+        <span class="nav-text">Live Terminal Audit Stream</span>
+      </a>
+      <a href="#command-control" class="sidebar-item">
+        <span class="nav-text">Command & Control Hub</span>
+      </a>
+      <a href="#retraining-lab" class="sidebar-item">
+        <span class="nav-text">Continuous Retraining Lab</span>
+      </a>
 
-  <!-- ========================================================================
-       SIDEBAR / TOOL MENU (Matches 2.png)
-       ======================================================================== -->
-  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+      <div class="menu-label" style="margin-top: 1.5rem;">System & Documentation</div>
+      <a href="#" id="btn-open-arch-modal" class="sidebar-item">
+        <span class="nav-text">System Architecture</span>
+      </a>
+      <a href="#" id="btn-open-privacy-modal" class="sidebar-item">
+        <span class="nav-text">Privacy Policy</span>
+      </a>
+      <a href="#" id="btn-open-terms-modal" class="sidebar-item">
+        <span class="nav-text">Terms & Conditions</span>
+      </a>
+      <a href="/docs" target="_blank" class="sidebar-item external">
+        <span class="nav-text">OpenAPI Docs ↗</span>
+      </a>
+    </nav>
 
-  <aside id="app-sidebar" class="app-sidebar">
-    <div class="sidebar-section-title">Navigation Tools</div>
-
-    <div class="sidebar-menu">
-      <!-- Option 1: Maps (FUNCTIONAL per prompt requirement #2) -->
-      <button id="btn-nav-maps" class="sidebar-btn" title="Open Karnataka AWS Maps Dashboard">
-        <span>🗺️ Maps</span>
-        <span class="btn-badge">Active</span>
-      </button>
-
-      <!-- Option 2: Anomaly (DISABLED / NON-FUNCTIONAL per prompt requirement #2 & #12) -->
-      <button id="btn-nav-anomaly" class="sidebar-btn disabled" disabled title="Anomaly section is currently disabled/under development">
-        <span>⚠️ Anomaly</span>
-        <span class="btn-badge">Disabled</span>
-      </button>
-    </div>
-
+    <!-- Sidebar Footer Actions -->
     <div class="sidebar-footer">
-      <div><strong>SkyGuard AI</strong> • SIH 2026</div>
-      <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px;">Smart Weather Anomaly Detection</div>
+      <button id="btn-export-excel-header" class="btn btn-primary btn-block btn-sm">
+        Export Session (.xlsx)
+      </button>
+      <a href="#regional-overview" class="btn btn-outline btn-block btn-sm" style="margin-top: 0.5rem; text-align: center;">
+        Launch Live Dashboard
+      </a>
     </div>
   </aside>
 
-  <!-- ========================================================================
-       MAIN APPLICATION VIEW CONTAINER (SPA View Switching)
-       ======================================================================== -->
-  <main class="view-container">
+  <!-- Main View Area -->
+  <div class="main-wrapper">
 
-    <!-- ----------------------------------------------------------------------
-         VIEW 1: WELCOME / LANDING PAGE (Matches 1.png)
-         ---------------------------------------------------------------------- -->
-    <section id="view-welcome" class="app-view welcome-screen active-view">
-      <div class="welcome-hero">
-        <!-- Giant Centered Welcome Text (from 1.png) -->
-        <h1 class="welcome-title">Welcome</h1>
-        <p class="welcome-subtitle">
-          SkyGuard AI Real-Time Meteorological Anomaly Detection Platform
-        </p>
-
-        <div id="btn-cta-enter-maps" class="welcome-cta-box" title="Launch Karnataka Maps Interface">
-          <span>🗺️</span>
-          <span>Open Karnataka AWS Maps Interface →</span>
+    <!-- Top Masthead Ribbon -->
+    <header class="top-header">
+      <div class="top-header-left">
+        <h1 class="portal-title">Central AWS Telemetry Engine | High-Precipitation Grid</h1>
+      </div>
+      <div class="status-ribbon">
+        <div class="status-item">
+          <span class="status-label">Ingest Gateway</span>
+          <div class="status-value"><span class="pulse-dot green" id="edge-gateway-dot"></span> <span id="edge-gateway-status">Active (Port 8000)</span></div>
+        </div>
+        <div class="status-item">
+          <span class="status-label">AWS Grid</span>
+          <div class="status-value highlight" id="grid-status-val">5 Stations Active</div>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Ingested Telemetry</span>
+          <div class="status-value" id="header-total-records">0 Records</div>
+        </div>
+        <div class="status-item">
+          <span class="status-label">System Time (IST)</span>
+          <div class="status-value font-mono" id="system-clock">--:--:-- IST</div>
         </div>
       </div>
-    </section>
+    </header>
 
-    <!-- ----------------------------------------------------------------------
-         VIEW 2: MAPS PAGE — 50/50 VERTICAL SPLIT (Matches 3.png, 4.png, 5.png)
-         ---------------------------------------------------------------------- -->
-    <section id="view-maps" class="app-view maps-layout">
+    <!-- Content Area -->
+    <main class="main-content">
 
-      <!-- LEFT HALF (~50%): KARNATAKA MAP (3.png) -->
-      <div class="maps-left-pane">
-        <div class="map-region-badge">
-          <span>📍</span>
-          <span>Karnataka, India • 5 AWS Stations</span>
-        </div>
-        <div id="karnataka-map"></div>
-      </div>
-
-      <!-- RIGHT HALF (~50%): DYNAMIC STATION TELEMETRY & DIAGNOSTICS (3.png, 4.png, 5.png) -->
-      <div class="maps-right-pane">
-
-        <!-- Initial Placeholder State (Before pin click, 3.png) -->
-        <div id="right-empty-state" class="right-empty-state">
-          <div class="empty-state-icon">📍</div>
-          <div class="empty-state-title">Select an AWS Location Pin</div>
-          <div class="empty-state-desc">
-            Click on any station marker on the Karnataka map to view its 24-hour temporal telemetry data and anomaly records.
+      <!-- KPI Summary Grid -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Total Ingested Payloads</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-val" id="kpi-total-ingested">0</div>
+            <div class="kpi-delta positive" id="kpi-ingest-rate">Edge Upstream Linked</div>
           </div>
         </div>
 
-        <!-- SECTION 1: SELECTED STATION TELEMETRY TABLE (Matches 4.png) -->
-        <div id="station-data-card" class="station-data-card" style="display: none;">
-          <div class="station-card-header">
-            <div class="station-title-group">
-              <!-- Location name (4.png) -->
-              <h2 id="station-title" class="station-title">Station Name</h2>
-              <!-- Coordinates / code nXX.XX.XX (4.png) -->
-              <span id="station-coords" class="station-coords">XX.XX.XX</span>
+        <div class="kpi-card alert-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Confirmed Anomaly Events</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-val text-alert" id="kpi-total-anomalies">0</div>
+            <div class="kpi-delta" id="kpi-anomaly-rate">0.0% Anomaly Frequency</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Mean Reconstruction Error</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-val text-cyan font-mono" id="kpi-mean-error">0.0142</div>
+            <div class="kpi-delta" id="kpi-threshold-compare">Rejection Threshold: <span id="kpi-current-thresh">0.0250</span></div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-title">Active Neural Model</span>
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-val font-mono" id="kpi-model-version" style="font-size: 1.25rem;">v1.0-TinyML</div>
+            <div class="kpi-delta positive" id="kpi-retrain-status">Continuous Learning Ready</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 1: Regional Map Overview -->
+      <section id="regional-overview" class="content-section">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-heading">Regional Telemetry Overview • Western Ghats Grid</h2>
+            <p class="section-subheading">Spatial distribution across high-precipitation stations (Agumbe, Kottigehara, Kammaradi, Kalasa, Bhagamandala)</p>
+          </div>
+          <div class="map-legend">
+            <span class="legend-item"><span class="legend-dot dot-normal"></span> Nominal Status</span>
+            <span class="legend-item"><span class="legend-dot dot-warning"></span> Elevated Loss</span>
+            <span class="legend-item"><span class="legend-dot dot-anomaly"></span> Critical Anomaly Alert</span>
+          </div>
+        </div>
+
+        <div class="regional-grid">
+          <div class="map-wrapper">
+            <div id="karnataka-map"></div>
+            <div class="map-overlay-card" id="map-station-preview">
+              <div class="preview-header">
+                <span class="preview-title" id="preview-station-name">Select Station on Map</span>
+                <span class="badge badge-normal" id="preview-station-status">Nominal</span>
+              </div>
+              <div class="preview-stats">
+                <div class="stat-cell"><span class="cell-label">Temp</span><span class="cell-val" id="preview-temp">--.- °C</span></div>
+                <div class="stat-cell"><span class="cell-label">Pressure</span><span class="cell-val" id="preview-press">----.- hPa</span></div>
+                <div class="stat-cell"><span class="cell-label">Humidity</span><span class="cell-val" id="preview-hum">-- %</span></div>
+                <div class="stat-cell"><span class="cell-label">Mean MSE</span><span class="cell-val font-mono" id="preview-mse">0.0000</span></div>
+              </div>
             </div>
-            <div class="station-header-meta">24-Hour Telemetry Record</div>
+          </div>
+          <div class="station-cards-column" id="station-cards-container">
+            <div class="loading-placeholder">Loading Regional AWS Stations...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: Hardware Health Gauges & Node Cards -->
+      <section id="hardware-health" class="content-section">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-heading">Hardware Telemetry & Communication Visualizer</h2>
+            <p class="section-subheading">Live physical signal metrics, latency gauges, and node operational indicators.</p>
+          </div>
+        </div>
+
+        <div class="hardware-gauges-grid">
+          <!-- Gauges Panel -->
+          <div class="gauge-card">
+            <div class="gauge-header">Signal Strength (RSSI)</div>
+            <div class="gauge-val font-mono" id="gauge-rssi-val">-68 dBm</div>
+            <div class="gauge-track"><div id="gauge-rssi-bar" class="gauge-bar" style="width: 75%;"></div></div>
+            <span class="gauge-label">Range: -110 dBm (Weak) to -40 dBm (Optimal)</span>
           </div>
 
-          <!-- Scrollable Table Container with Scrollwheel (4.png) -->
-          <div class="table-scroll-container">
-            <table class="telemetry-data-table">
+          <div class="gauge-card">
+            <div class="gauge-header">Ping & Latency</div>
+            <div class="gauge-val font-mono" id="gauge-latency-val">42 ms</div>
+            <div class="gauge-track"><div id="gauge-latency-bar" class="gauge-bar" style="width: 25%; background-color: #38bdf8;"></div></div>
+            <span class="gauge-label">Threshold Warning: > 150 ms</span>
+          </div>
+
+          <div class="gauge-card">
+            <div class="gauge-header">Packet Loss</div>
+            <div class="gauge-val font-mono" id="gauge-loss-val">0.1%</div>
+            <div class="gauge-track"><div id="gauge-loss-bar" class="gauge-bar" style="width: 2%; background-color: #10b981;"></div></div>
+            <span class="gauge-label">Target: < 2.0% Loss Rate</span>
+          </div>
+
+          <div class="gauge-card">
+            <div class="gauge-header">Signal-to-Noise Ratio (SNR)</div>
+            <div class="gauge-val font-mono" id="gauge-snr-val">28.5 dB</div>
+            <div class="gauge-track"><div id="gauge-snr-bar" class="gauge-bar" style="width: 70%; background-color: #6366f1;"></div></div>
+            <span class="gauge-label">Nominal SNR: > 15 dB</span>
+          </div>
+        </div>
+
+        <!-- Node Health Cards -->
+        <div class="node-cards-grid" style="margin-top: 1.5rem;">
+          <div class="node-card">
+            <div class="node-card-header">
+              <span class="node-title">Sender Node (Edge AWS Sensor)</span>
+              <span class="badge badge-normal">Active</span>
+            </div>
+            <div class="node-body">
+              <div class="node-stat"><span>Handshake:</span> <strong>Connected (BroadcastChannel)</strong></div>
+              <div class="node-stat"><span>Sample Rate:</span> <strong>1 Hz / 10 Hz Configurable</strong></div>
+              <div class="node-stat"><span>Active Sensors:</span> <strong>BMP280, DHT22, Anemometer</strong></div>
+            </div>
+          </div>
+
+          <div class="node-card">
+            <div class="node-card-header">
+              <span class="node-title">Receiver Node (Edge Gateway Hub)</span>
+              <span class="badge badge-normal">Active</span>
+            </div>
+            <div class="node-body">
+              <div class="node-stat"><span>Ingest Relays:</span> <strong>HTTP POST /cloud/ingest</strong></div>
+              <div class="node-stat"><span>Local Buffer:</span> <strong>SQLite / localStorage Active</strong></div>
+              <div class="node-stat"><span>Verdicts:</span> <strong>TinyML Pure Rules + AE Ingest</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: Time-Series Analytics & Pre-Export Data Filtering -->
+      <section id="analytics-charts" class="content-section">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-heading">Interactive Telemetry Analytics & Filtering</h2>
+            <p class="section-subheading">Historical signal parameters, latency curves, and pre-export filter rules.</p>
+          </div>
+        </div>
+
+        <div class="chart-wrapper-card">
+          <div style="height: 300px;">
+            <canvas id="telemetryAnalyticsChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: Excel Sheets & Data Exports (Live Telemetry Table) -->
+      <section id="central-repository" class="content-section">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-heading">Central Data Repository • Excel & CSV Export System</h2>
+            <p class="section-subheading">Download raw & reconstructed telemetry with full session audit metadata.</p>
+          </div>
+          <div class="table-controls">
+            <button id="btn-export-excel" class="btn btn-primary btn-sm">Export Excel (.xlsx)</button>
+            <button id="btn-export-csv" class="btn btn-outline btn-sm">Export CSV (.csv)</button>
+            <button id="btn-trigger-auto-archive" class="btn btn-outline btn-sm">Generate 24h Archive</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="telemetry-table">
               <thead>
                 <tr>
-                  <th>Time</th>
-                  <th>Celcius</th>
-                  <th>hPa</th>
-                  <th>% humidity</th>
+                  <th>Timestamp (IST)</th>
+                  <th>Station / Node</th>
+                  <th>Temperature</th>
+                  <th>Pressure</th>
+                  <th>Humidity</th>
+                  <th>Classification</th>
+                  <th>Reconstruction MSE</th>
+                  <th>Rejection Threshold</th>
                 </tr>
               </thead>
               <tbody id="telemetry-table-body">
-                <!-- Populated dynamically from JSON -->
+                <tr>
+                  <td colspan="8" class="text-center py-4">Waiting for edge telemetry stream...</td>
+                </tr>
               </tbody>
             </table>
           </div>
+          <div class="table-footer">
+            <span id="table-record-count">Displaying latest records</span>
+            <span class="text-muted font-mono" style="font-size: 0.75rem;">SQLite Persistence: cloud_data.sqlite</span>
+          </div>
+        </div>
+      </section>
 
-          <div class="table-instruction-hint">
-            <span>💡 <em>Click any highlighted cell to view detailed anomaly diagnosis and probable causes.</em></span>
-            <span>Scrollable (24h)</span>
+      <!-- SECTION 5: Live Terminal Audit Stream -->
+      <section id="terminal-stream" class="content-section">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-heading">Real-Time Event Audit Log Stream</h2>
+            <p class="section-subheading">Terminal-style audit stream capturing system handshakes, anomalies, and threshold breaches.</p>
           </div>
         </div>
 
-        <!-- SECTION 2: ANOMALY DIAGNOSIS & PROBABLE CAUSES TABLE (Matches 5.png) -->
-        <!-- Only visible when an anomaly cell is clicked! -->
-        <div id="anomaly-diagnosis-card" class="anomaly-diagnosis-card">
-          <div class="diagnosis-card-header">
-            <div id="diagnosis-title" class="diagnosis-title">
-              <span>⚠️</span> Anomaly Diagnostic Report
+        <div class="terminal-wrapper">
+          <div class="terminal-header">
+            <span class="terminal-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></span>
+            <span class="terminal-title">skyguard_event_audit.log</span>
+            <span class="terminal-status" id="terminal-job-status">Streaming</span>
+          </div>
+          <div class="terminal-body font-mono" id="terminal-audit-stream">
+            <div class="term-line term-info"><span class="term-time">[SYSTEM INITIALIZED]</span> <span class="term-badge term-badge-info">[INFO]</span> Cloud telemetry ingestion daemon online.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: Hardware Command & Control Hub -->
+      <section id="command-control" class="content-section">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-heading">Command & Control Hardware Panel</h2>
+            <p class="section-subheading">Configure hardware sampling rates, remote logging toggles, and manual data dumps.</p>
+          </div>
+        </div>
+
+        <div class="command-panel-card">
+          <div class="command-row">
+            <div class="command-group">
+              <label>Sampling Frequency:</label>
+              <div class="btn-group">
+                <button id="btn-sample-1hz" class="btn btn-outline btn-sm active">1 Hz</button>
+                <button id="btn-sample-10hz" class="btn btn-outline btn-sm">10 Hz</button>
+              </div>
             </div>
-            <button id="btn-close-diagnosis" class="btn-close-diagnosis" title="Close Diagnostic Table">✕</button>
+            <div class="command-group">
+              <label>Remote Logging Relay:</label>
+              <button id="btn-toggle-logging" class="btn btn-outline btn-sm active">Enabled</button>
+            </div>
+            <div class="command-group">
+              <button id="btn-manual-dump" class="btn btn-primary btn-sm">Force Telemetry Dump</button>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <table class="diagnosis-table">
-            <thead>
-              <tr>
-                <th style="width: 15%;">Time</th>
-                <th style="width: 25%;">Variable</th>
-                <th style="width: 60%;">Description of the anomaly, the probable causes.</th>
-              </tr>
-            </thead>
-            <tbody id="diagnosis-table-body">
-              <!-- Injected on cell click -->
-            </tbody>
-          </table>
+      <!-- SECTION 7: Continuous Retraining Lab -->
+      <section id="retraining-lab" class="content-section">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-heading">Continuous Learning Lab • PyTorch Autoencoder Retraining</h2>
+            <p class="section-subheading">Closed-loop model refinement and dynamic threshold recalibration.</p>
+          </div>
         </div>
 
+        <div class="retraining-layout">
+          <!-- Control Panel -->
+          <div class="retrain-controls-card">
+            <div class="card-title">Retraining Pipeline Controller</div>
+            <p class="card-desc">Simulates scheduled or on-demand neural model recalibration.</p>
+
+            <form id="retrain-form" class="retrain-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="retrain-epochs">Retraining Epochs</label>
+                  <input type="number" id="retrain-epochs" class="input-field" value="25" min="5" max="100" />
+                </div>
+                <div class="form-group">
+                  <label for="retrain-lr">Learning Rate (Adam)</label>
+                  <input type="number" id="retrain-lr" class="input-field" value="0.01" step="0.005" min="0.001" max="0.1" />
+                </div>
+              </div>
+              <button type="submit" id="btn-trigger-retrain" class="btn btn-primary btn-block">
+                Run Retraining Pipeline
+              </button>
+            </form>
+
+            <div class="terminal-wrapper" style="margin-top: 1rem;">
+              <div class="terminal-header"><span class="terminal-title">retraining_executor.log</span></div>
+              <div class="terminal-body font-mono" id="retrain-terminal">
+                <div class="term-line info">[SYSTEM READY] Retraining daemon initialized on PyTorch.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visualization Panel -->
+          <div class="retrain-visualization-card">
+            <div class="card-title">Autoencoder Reconstruction Loss (MSE)</div>
+            <div class="chart-container">
+              <canvas id="lossChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="top-footer">
+      <div class="footer-content">
+        <div>
+          <strong>SkyGuard AI • Cloud Telemetry & Continuous Learning Platform</strong><br />
+          Enterprise Telemetry Ingestion Node (Port 8000)
+        </div>
+        <div class="footer-links font-mono">
+          SQLite Storage: cloud_data.sqlite | Status: Operational
+        </div>
       </div>
+    </footer>
 
-    </section>
+  </div>
 
-  </main>
+  <!-- Cookie Consent Banner -->
+  <div id="cookie-consent-banner" class="cookie-banner">
+    <div class="cookie-text">
+      <strong>Cookie & Privacy Consent</strong>
+      <span>This system uses local browser storage to persist telemetry session logs and user settings.</span>
+    </div>
+    <button id="btn-accept-cookies" class="btn btn-primary btn-sm">Accept & Save Preferences</button>
+  </div>
+
+  <!-- System Architecture Modal -->
+  <div id="modal-architecture" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>SkyGuard AI System Architecture</h3>
+        <button id="btn-close-arch-modal" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>1. AWS Sensor Simulation (Sender Node):</strong> Captures temperature, humidity, pressure, and calculates signal parameters (RSSI, SNR, Latency).</p>
+        <p><strong>2. Edge Gateway (Receiver Node):</strong> Evaluates real-time threshold spike rules and TinyML verdicts via client-side BroadcastChannel.</p>
+        <p><strong>3. Central Cloud Pipeline (FastAPI Backend):</strong> Ingests telemetry, persists data in SQLite, streams hardware metrics, and executes PyTorch Autoencoder retraining.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+  <div id="modal-privacy" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Privacy Policy</h3>
+        <button id="btn-close-privacy-modal" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>SkyGuard AI operates as an enterprise telemetry demonstration system. All stored logs are retained locally or within the designated SQLite deployment database. No personal identifying information is transmitted to third parties.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms & Conditions Modal -->
+  <div id="modal-terms" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Terms & Conditions</h3>
+        <button id="btn-close-terms-modal" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>This software is provided for meteorological telemetry monitoring, anomaly detection, and research. System operators are responsible for verifying hardware calibrations and telemetry endpoints.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Leaflet Map Script -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Telemetry Engine & Exporter JS -->
+  <script src="js/telemetry-engine.js"></script>
 
-  <!-- Main Modular Application JavaScript -->
-  <script type="module" src="js/app.js"></script>
-
+  <!-- Cloud Dashboard Application JS -->
+  <script src="js/cloud_dashboard.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@
 :root {
   /* Brand & Identity */
   --app-title: "SkyGuard AI — Anomaly Monitoring Console";
-  --app-subtitle: "India Meteorological Department (IMD) • SIH26073";
+  --app-subtitle: "AWS Weather Station Telemetry Network | Edge AI Hub";
   
   /* Color Palette - Receiver (Deep IMD Navy / Indigo Theme) */
   --bg-app: #090d16;

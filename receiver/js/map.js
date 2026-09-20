@@ -32,7 +32,7 @@ export async function initIndiaMapView() {
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
-    attribution: '© OpenStreetMap contributors • SkyGuard AI (SIH26073)'
+    attribution: '© OpenStreetMap contributors • SkyGuard AI'
   }).addTo(map);
 
   const stations = await getAllStations();

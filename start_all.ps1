@@ -1,10 +1,10 @@
 # start_all.ps1
-# SkyGuard AI - 3-Node Weather Anomaly Detection System (SIH26073)
-# Stakeholder: India Meteorological Department (IMD) | Team SKYE
+# SkyGuard AI - 3-Node Weather Anomaly Detection System
+# Central AWS Telemetry Network & Edge AI Hub
 
 Write-Host "=========================================================================" -ForegroundColor Cyan
-Write-Host "      SkyGuard AI -- 3-Node Architecture Launcher (SIH26073)" -ForegroundColor Yellow
-Write-Host "      Stakeholder: India Meteorological Department (IMD) | Team SKYE" -ForegroundColor White
+Write-Host "      SkyGuard AI -- 3-Node Architecture Launcher" -ForegroundColor Yellow
+Write-Host "      Central AWS Telemetry Network & Edge AI Hub" -ForegroundColor White
 Write-Host "=========================================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -21,13 +21,13 @@ Start-Sleep -Seconds 2
 Write-Host "[3/3] Opening Web Portals..." -ForegroundColor Green
 Start-Process "http://localhost:5500/sender/stations.html"
 Start-Process "http://localhost:5500/receiver/dashboard.html"
-Start-Process "https://skyguard-web.onrender.com/"
+Start-Process "http://localhost:8000/"
 
 Write-Host ""
 Write-Host "=========================================================================" -ForegroundColor Cyan
 Write-Host "  All 3 nodes are active and running:" -ForegroundColor Yellow
 Write-Host "    • Sender Node:   http://localhost:5500/sender/stations.html" -ForegroundColor White
 Write-Host "    • Receiver Node: http://localhost:5500/receiver/dashboard.html" -ForegroundColor White
-Write-Host "    • Cloud Central: https://skyguard-web.onrender.com/" -ForegroundColor White
-Write-Host "    • OpenAPI Docs:  https://skyguard-web.onrender.com/docs" -ForegroundColor White
+Write-Host "    • Cloud Central: http://localhost:8000/" -ForegroundColor White
+Write-Host "    • OpenAPI Docs:  http://localhost:8000/docs" -ForegroundColor White
 Write-Host "=========================================================================" -ForegroundColor Cyan

@@ -1,7 +1,7 @@
 # cloud/cloud_main.py
 # =========================================================================================
-# SkyGuard AI - Cloud Dashboard (IMD Simulation) & Continuous Retraining Engine
-# Stakeholder: India Meteorological Department (IMD) • Problem ID: SIH26073
+# SkyGuard AI - Cloud Dashboard & Continuous Retraining Engine
+# Central AWS Telemetry Network & Edge AI Hub
 # =========================================================================================
 
 import os
@@ -43,6 +43,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Enterprise Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 # -----------------------------------------------------------------------------------------
 # Database / Persistence Layer (SQLite)
@@ -542,7 +552,7 @@ async def trigger_retraining(req: RetrainRequest):
 @app.get("/cloud/model-status", summary="Returns Autoencoder neural architecture and training specs")
 async def get_model_status():
     return {
-        "model_name": "SkyGuard Weather Autoencoder (SIH26073)",
+        "model_name": "SkyGuard Weather Autoencoder Pipeline",
         "version": model_pipeline.model_version,
         "architecture": {
             "encoder": "Linear(3, 8) -> ReLU -> Linear(8, 2)",
@@ -557,66 +567,102 @@ async def get_model_status():
         "loss_history": model_pipeline.last_loss_history
     }
 
-# -----------------------------------------------------------------------------------------
-# Static Files, Shared Datasets & Dashboard UI Mounting
-# -----------------------------------------------------------------------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
-CSS_DIR = os.path.join(STATIC_DIR, "css")
-JS_DIR = os.path.join(STATIC_DIR, "js")
-SHARED_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "shared"))
-if not os.path.exists(SHARED_DIR):
-    SHARED_DIR = os.path.join(BASE_DIR, "shared")
+# SEO & Compliance Endpoints
+@app.get("/robots.txt", response_class=HTMLResponse)
+async def get_robots_txt():
+    content = "User-agent: *\nAllow: /\nSitemap: http://localhost:8000/sitemap.xml\n"
+    return HTMLResponse(content=content, media_type="text/plain")
 
+@app.get("/sitemap.xml", response_class=HTMLResponse)
+async def get_sitemap_xml():
+    xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://localhost:8000/</loc>
+    <changefreq>always</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>http://localhost:8000/dashboard</loc>
+    <changefreq>always</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>http://localhost:8000/docs</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>"""
+    return HTMLResponse(content=xml_content, media_type="application/xml")
+
+class ContactPayload(BaseModel):
+    name: str
+    email: str
+    message: str
+    b_honeypot: Optional[str] = None
+
+@app.post("/api/contact", summary="Honeypot-protected contact feedback endpoint")
+async def contact_form_submit(payload: ContactPayload):
+    if payload.b_honeypot:
+        return {"status": "success", "detail": "Message received"}
+    return {"status": "success", "detail": "Feedback recorded successfully"}
+
+# -----------------------------------------------------------------------------------------
+# Static Files & Dashboard UI Mounting
+# -----------------------------------------------------------------------------------------
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-if os.path.exists(CSS_DIR):
-    app.mount("/css", StaticFiles(directory=CSS_DIR), name="css")
-if os.path.exists(JS_DIR):
-    app.mount("/js", StaticFiles(directory=JS_DIR), name="js")
+
+# Mount Sender & Receiver static nodes for unified Render deployment
+PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
+
+SENDER_DIR = os.path.join(PROJECT_ROOT, "sender")
+if os.path.exists(SENDER_DIR):
+    app.mount("/sender", StaticFiles(directory=SENDER_DIR, html=True), name="sender")
+
+RECEIVER_DIR = os.path.join(PROJECT_ROOT, "receiver")
+if os.path.exists(RECEIVER_DIR):
+    app.mount("/receiver", StaticFiles(directory=RECEIVER_DIR, html=True), name="receiver")
+
+SHARED_DIR = os.path.join(PROJECT_ROOT, "shared")
 if os.path.exists(SHARED_DIR):
     app.mount("/shared", StaticFiles(directory=SHARED_DIR), name="shared")
 
-@app.get("/css/{file_name}")
-@app.get("/static/css/{file_name}")
-async def serve_css_file(file_name: str):
-    file_path = os.path.join(CSS_DIR, file_name)
-    if os.path.exists(file_path):
-        return FileResponse(file_path, media_type="text/css")
-    raise HTTPException(status_code=404, detail=f"CSS file {file_name} not found")
-
-@app.get("/js/{file_name}")
-@app.get("/static/js/{file_name}")
-async def serve_js_file(file_name: str):
-    file_path = os.path.join(JS_DIR, file_name)
-    if os.path.exists(file_path):
-        return FileResponse(file_path, media_type="application/javascript")
-    raise HTTPException(status_code=404, detail=f"JS file {file_name} not found")
-
-@app.get("/api/stations", summary="Returns 5 synthetic Karnataka AWS stations")
-async def get_synthetic_stations():
-    stations_file = os.path.join(SHARED_DIR, "stations.json")
-    if os.path.exists(stations_file):
-        with open(stations_file, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return []
-
-@app.get("/api/stations/{station_id}/temporal", summary="Returns temporal telemetry dataset for station")
-async def get_station_temporal(station_id: str):
-    dataset_file = os.path.join(SHARED_DIR, "datasets", f"{station_id.lower()}.json")
-    if os.path.exists(dataset_file):
-        with open(dataset_file, "r", encoding="utf-8") as f:
-            return json.load(f)
-    raise HTTPException(status_code=404, detail=f"Dataset for station {station_id} not found")
-
 @app.get("/", response_class=HTMLResponse)
-@app.get("/maps", response_class=HTMLResponse)
 @app.get("/dashboard", response_class=HTMLResponse)
 async def serve_cloud_portal():
     index_file = os.path.join(STATIC_DIR, "index.html")
     if os.path.exists(index_file):
         return FileResponse(index_file)
     return HTMLResponse("<h2>SkyGuard AI Cloud Backend Active. Static UI loading...</h2>")
+
+@app.exception_handler(404)
+async def custom_404_handler(request, exc):
+    html_404 = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>404 Page Not Found — SkyGuard AI</title>
+  <style>
+    body { background: #0b1120; color: #f8fafc; font-family: system-ui, sans-serif; display: flex; height: 100vh; margin: 0; align-items: center; justify-content: center; text-align: center; }
+    .card { background: #1e293b; padding: 2.5rem; border-radius: 12px; border: 1px solid #334155; max-width: 480px; width: 90%; }
+    h1 { font-size: 3rem; margin: 0 0 0.5rem 0; color: #38bdf8; }
+    p { color: #94a3b8; font-size: 1rem; line-height: 1.5; margin-bottom: 1.5rem; }
+    a { display: inline-block; background: #0284c7; color: white; text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; }
+    a:hover { background: #0369a1; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>404</h1>
+    <h2>Telemetry Route Not Found</h2>
+    <p>The requested endpoint or dashboard view does not exist on this SkyGuard AI server node.</p>
+    <a href="/">Return to Central Dashboard</a>
+  </div>
+</body>
+</html>"""
+    return HTMLResponse(content=html_404, status_code=404)
 
 if __name__ == "__main__":
     import uvicorn

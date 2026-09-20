@@ -2,7 +2,7 @@
 // SkyGuard AI — IMD Simulation Cloud Command Center Logic
 // Handles live analytics polling, Karnataka Leaflet visualization, stream table rendering, and continuous retraining execution.
 
-const API_BASE = window.location.origin;
+const API_BASE = window.location.origin; // e.g. http://localhost:8000
 
 // Karnataka AWS Stations Metadata
 const STATIONS_META = {

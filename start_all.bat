@@ -1,8 +1,8 @@
 @echo off
 title SkyGuard AI - 3-Node Architecture Launcher
 echo =========================================================================
-echo       SkyGuard AI -- 3-Node Weather Anomaly Detection System (SIH26073)
-echo       Stakeholder: India Meteorological Department (IMD) | Team SKYE
+echo       SkyGuard AI -- 3-Node Weather Anomaly Detection System
+echo       Central AWS Telemetry Network & Edge AI Hub
 echo =========================================================================
 echo.
 echo [1/3] Starting Cloud Backend & IMD Retraining Portal (Port 8000)...
@@ -18,11 +18,11 @@ timeout /t 2 /nobreak > nul
 echo [3/3] Opening Browser Nodes:
 echo   - Sender Node:   http://localhost:5500/sender/stations.html
 echo   - Receiver Node: http://localhost:5500/receiver/dashboard.html
-echo   - Cloud Portal:  https://skyguard-web.onrender.com/
+echo   - Cloud Portal:  http://localhost:8000/
 echo.
 start http://localhost:5500/sender/stations.html
 start http://localhost:5500/receiver/dashboard.html
-start https://skyguard-web.onrender.com/
+start http://localhost:8000/
 
 echo =========================================================================
 echo All 3 nodes launched! Press any key to close this launcher script.
