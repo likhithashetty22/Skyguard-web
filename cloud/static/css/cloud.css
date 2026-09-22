@@ -287,7 +287,6 @@ body {
 }
 
 .kpi-card:hover {
-  transform: translateY(-2px);
   border-color: #475569;
 }
 
@@ -496,7 +495,6 @@ body {
 .station-card:hover, .station-card.active {
   border-color: var(--imd-cyan);
   background: rgba(30, 41, 59, 0.9);
-  transform: translateX(3px);
 }
 
 .station-card.has-anomaly {

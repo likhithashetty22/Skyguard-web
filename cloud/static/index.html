@@ -59,12 +59,6 @@
       <a href="#central-repository" class="sidebar-item">
         <span class="nav-text">Excel Sheets & Data Exports</span>
       </a>
-      <a href="#terminal-stream" class="sidebar-item">
-        <span class="nav-text">Live Terminal Audit Stream</span>
-      </a>
-      <a href="#command-control" class="sidebar-item">
-        <span class="nav-text">Command & Control Hub</span>
-      </a>
       <a href="#retraining-lab" class="sidebar-item">
         <span class="nav-text">Continuous Retraining Lab</span>
       </a>
@@ -229,20 +223,6 @@
             <div class="gauge-track"><div id="gauge-latency-bar" class="gauge-bar" style="width: 25%; background-color: #38bdf8;"></div></div>
             <span class="gauge-label">Threshold Warning: > 150 ms</span>
           </div>
-
-          <div class="gauge-card">
-            <div class="gauge-header">Packet Loss</div>
-            <div class="gauge-val font-mono" id="gauge-loss-val">0.1%</div>
-            <div class="gauge-track"><div id="gauge-loss-bar" class="gauge-bar" style="width: 2%; background-color: #10b981;"></div></div>
-            <span class="gauge-label">Target: < 2.0% Loss Rate</span>
-          </div>
-
-          <div class="gauge-card">
-            <div class="gauge-header">Signal-to-Noise Ratio (SNR)</div>
-            <div class="gauge-val font-mono" id="gauge-snr-val">28.5 dB</div>
-            <div class="gauge-track"><div id="gauge-snr-bar" class="gauge-bar" style="width: 70%; background-color: #6366f1;"></div></div>
-            <span class="gauge-label">Nominal SNR: > 15 dB</span>
-          </div>
         </div>
 
         <!-- Node Health Cards -->
@@ -266,7 +246,7 @@
             </div>
             <div class="node-body">
               <div class="node-stat"><span>Ingest Relays:</span> <strong>HTTP POST /cloud/ingest</strong></div>
-              <div class="node-stat"><span>Local Buffer:</span> <strong>SQLite / localStorage Active</strong></div>
+              <div class="node-stat"><span>Local Buffer:</span> <strong>Active Ingestion Buffer</strong></div>
               <div class="node-stat"><span>Verdicts:</span> <strong>TinyML Pure Rules + AE Ingest</strong></div>
             </div>
           </div>
@@ -327,62 +307,11 @@
           </div>
           <div class="table-footer">
             <span id="table-record-count">Displaying latest records</span>
-            <span class="text-muted font-mono" style="font-size: 0.75rem;">SQLite Persistence: cloud_data.sqlite</span>
           </div>
         </div>
       </section>
 
-      <!-- SECTION 5: Live Terminal Audit Stream -->
-      <section id="terminal-stream" class="content-section">
-        <div class="section-title-row">
-          <div>
-            <h2 class="section-heading">Real-Time Event Audit Log Stream</h2>
-            <p class="section-subheading">Terminal-style audit stream capturing system handshakes, anomalies, and threshold breaches.</p>
-          </div>
-        </div>
-
-        <div class="terminal-wrapper">
-          <div class="terminal-header">
-            <span class="terminal-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></span>
-            <span class="terminal-title">skyguard_event_audit.log</span>
-            <span class="terminal-status" id="terminal-job-status">Streaming</span>
-          </div>
-          <div class="terminal-body font-mono" id="terminal-audit-stream">
-            <div class="term-line term-info"><span class="term-time">[SYSTEM INITIALIZED]</span> <span class="term-badge term-badge-info">[INFO]</span> Cloud telemetry ingestion daemon online.</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION 6: Hardware Command & Control Hub -->
-      <section id="command-control" class="content-section">
-        <div class="section-title-row">
-          <div>
-            <h2 class="section-heading">Command & Control Hardware Panel</h2>
-            <p class="section-subheading">Configure hardware sampling rates, remote logging toggles, and manual data dumps.</p>
-          </div>
-        </div>
-
-        <div class="command-panel-card">
-          <div class="command-row">
-            <div class="command-group">
-              <label>Sampling Frequency:</label>
-              <div class="btn-group">
-                <button id="btn-sample-1hz" class="btn btn-outline btn-sm active">1 Hz</button>
-                <button id="btn-sample-10hz" class="btn btn-outline btn-sm">10 Hz</button>
-              </div>
-            </div>
-            <div class="command-group">
-              <label>Remote Logging Relay:</label>
-              <button id="btn-toggle-logging" class="btn btn-outline btn-sm active">Enabled</button>
-            </div>
-            <div class="command-group">
-              <button id="btn-manual-dump" class="btn btn-primary btn-sm">Force Telemetry Dump</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION 7: Continuous Retraining Lab -->
+      <!-- SECTION 5: Continuous Retraining Lab -->
       <section id="retraining-lab" class="content-section">
         <div class="section-title-row">
           <div>
@@ -438,10 +367,10 @@
       <div class="footer-content">
         <div>
           <strong>SkyGuard AI • Cloud Telemetry & Continuous Learning Platform</strong><br />
-          Enterprise Telemetry Ingestion Node (Port 8000)
+          Enterprise Telemetry Ingestion Node
         </div>
         <div class="footer-links font-mono">
-          SQLite Storage: cloud_data.sqlite | Status: Operational
+          Status: Operational
         </div>
       </div>
     </footer>
@@ -465,9 +394,9 @@
         <button id="btn-close-arch-modal" class="modal-close">✕</button>
       </div>
       <div class="modal-body">
-        <p><strong>1. AWS Sensor Simulation (Sender Node):</strong> Captures temperature, humidity, pressure, and calculates signal parameters (RSSI, SNR, Latency).</p>
+        <p><strong>1. AWS Sensor Simulation (Sender Node):</strong> Captures temperature, humidity, pressure, and calculates signal parameters (RSSI, Latency).</p>
         <p><strong>2. Edge Gateway (Receiver Node):</strong> Evaluates real-time threshold spike rules and TinyML verdicts via client-side BroadcastChannel.</p>
-        <p><strong>3. Central Cloud Pipeline (FastAPI Backend):</strong> Ingests telemetry, persists data in SQLite, streams hardware metrics, and executes PyTorch Autoencoder retraining.</p>
+        <p><strong>3. Central Cloud Pipeline (FastAPI Backend):</strong> Ingests telemetry, streams hardware metrics, and executes PyTorch Autoencoder retraining.</p>
       </div>
     </div>
   </div>
@@ -480,7 +409,7 @@
         <button id="btn-close-privacy-modal" class="modal-close">✕</button>
       </div>
       <div class="modal-body">
-        <p>SkyGuard AI operates as an enterprise telemetry demonstration system. All stored logs are retained locally or within the designated SQLite deployment database. No personal identifying information is transmitted to third parties.</p>
+        <p>SkyGuard AI operates as an enterprise telemetry demonstration system. All stored logs are retained locally or within the designated deployment database. No personal identifying information is transmitted to third parties.</p>
       </div>
     </div>
   </div>
